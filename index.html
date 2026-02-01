@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Engine Calculator Suite | Tuner Tools</title>
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1022968838583578" crossorigin="anonymous"></script>
+
+    <style>
+        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b; --success: #10b981; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; max-width: 1000px; margin: 0 auto; padding-bottom: 80px; }
+        
+        /* Layout */
+        h1, h2, h3 { margin-top: 0; color: #0f172a; }
+        .tab-nav { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-btn { padding: 12px 24px; border: none; background: none; font-weight: 600; color: var(--text-light); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; white-space: nowrap; font-size: 1rem; }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        /* Grid & Cards */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        
+        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+        .card h3 { font-size: 1.1em; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Forms */
+        label { display: block; font-size: 0.85em; font-weight: 600; margin-top: 12px; color: #475569; }
+        .input-group { display: flex; gap: 10px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1em; margin-top: 4px; box-sizing: border-box; transition: 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        
+        /* Buttons & Results */
+        .calc-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; margin-top: 20px; cursor: pointer; transition: 0.2s; font-size: 1em; }
+        .calc-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .result-box { margin-top: 15px; background: #f1f5f9; padding: 12px; border-radius: 6px; font-weight: 700; text-align: center; color: var(--primary-dark); font-family: monospace; font-size: 1.2em; border: 1px solid #e2e8f0; }
+        .result-list { list-style: none; padding: 0; margin-top: 15px; font-family: monospace; font-size: 0.95em; }
+        .result-list li { background: #f1f5f9; padding: 8px; margin-bottom: 4px; border-radius: 4px; display: flex; justify-content: space-between; }
+        .result-list li strong { color: var(--text); }
+        .highlight { color: var(--success); font-weight: bold; }
+        small { color: var(--text-light); font-size: 0.8em; }
+
+        /* Global Selector */
+        .global-controls { background: #1e293b; color: white; padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .global-controls select { background: #334155; color: white; border: 1px solid #475569; }
+
+        /* Explainer Text Sections */
+        .explainer { background: #fff; border-left: 4px solid var(--primary); padding: 20px; margin-top: 20px; border-radius: 0 8px 8px 0; }
+        .explainer h4 { margin-top: 0; color: #334155; }
+        .explainer p { margin-bottom: 10px; font-size: 0.95em; color: #475569; }
+
+        /* Footer & About */
+        .site-footer { margin-top: 50px; padding-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; color: var(--text-light); }
+        .about-section { background: #fff; padding: 30px; border-radius: 12px; margin: 40px 0; border: 1px dashed #cbd5e1; text-align: center; }
+        .footer-links a { color: var(--text-light); text-decoration: none; margin: 0 10px; font-size: 0.9em; }
+        .footer-links a:hover { text-decoration: underline; color: var(--primary); }
+
+        /* Cookie Banner */
+        #cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 15px; display: none; align-items: center; justify-content: center; gap: 20px; z-index: 1000; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.1); }
+        #cookie-banner button { background: var(--primary); border: none; color: white; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 12px; position: relative; max-height: 70vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #64748b; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="global-controls">
+        <h2>🔧 Project Setup</h2>
+        <p style="color: #94a3b8; margin-top: -10px; font-size: 0.9em;">Select a preset to auto-populate the calculators.</p>
+        <select id="globalEngine" onchange="autoFillAll()">
+            <option value="">-- Select Base Engine Template --</option>
+            </select>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-engine')">Engine Internals</button>
+        <button class="tab-btn" onclick="switchTab('tab-airfuel')">Air & Fuel</button>
+        <button class="tab-btn" onclick="switchTab('tab-reliability')">Reliability</button>
+        <button class="tab-btn" onclick="switchTab('tab-drivetrain')">Drivetrain</button>
+    </div>
+
+    <div id="tab-engine" class="tab-content active">
+        <div class="calc-grid">
+            <div class="card">
+                <h3>Displacement</h3>
+                <label>Bore (mm)</label><input type="number" id="disp_bore" placeholder="86.0">
+                <label>Stroke (mm)</label><input type="number" id="disp_stroke" placeholder="86.0">
+                <label>Cylinders</label><input type="number" id="disp_cyl" placeholder="4">
+                <button class="calc-btn" onclick="calcDisplacement()">Calculate</button>
+                <div class="result-box" id="res_disp">--- cc / --- L</div>
+            </div>
+
+            <div class="card">
+                <h3>Static Compression (SCR)</h3>
+                <label>Cylinder Vol (cc) <small>(Auto)</small></label><input type="number" id="cr_cylvol" readonly style="background:#e2e8f0">
+                <label>Combustion Chamber (cc)</label><input type="number" id="cr_chamber" placeholder="e.g. 45">
+                <label>Piston Dome/Dish (cc)</label><input type="number" id="cr_dome" placeholder="-2 (dish) or 2 (dome)">
+                <label>Head Gasket Thickness (mm)</label><input type="number" id="cr_gasket" placeholder="0.6">
+                <button class="calc-btn" onclick="calcCR()">Calculate SCR</button>
+                <div class="result-box" id="res_cr">--- : 1</div>
+            </div>
+
+            <div class="card">
+                <h3>Rod / Stroke Ratio</h3>
+                <label>Rod Length (mm)</label><input type="number" id="rs_rod" placeholder="139.0">
+                <label>Stroke (mm)</label><input type="number" id="rs_stroke" placeholder="86.0">
+                <button class="calc-btn" onclick="calcRSRatio()">Calculate</button>
+                <div class="result-box" id="res_rs">Ratio: ---</div>
+            </div>
+
+            <div class="card">
+                <h3>Bore / Stroke Ratio</h3>
+                <label>Bore (mm)</label><input type="number" id="bs_bore" placeholder="86.0">
+                <label>Stroke (mm)</label><input type="number" id="bs_stroke" placeholder="86.0">
+                <button class="calc-btn" onclick="calcBSRatio()">Calculate</button>
+                <div class="result-box" id="res_bs">Ratio: ---</div>
+            </div>
+        </div>
+
+        <div class="explainer">
+            <h4>How to use these calculators</h4>
+            <p><strong>Displacement:</strong> Determines the engine size based on cylinder geometry. Increasing bore or stroke increases displacement, which generally increases torque.</p>
+            <p><strong>Rod/Stroke Ratio:</strong> Affects side-loading on cylinder walls. A higher ratio (1.75+) reduces friction and allows for safer high-RPM operation (like the Honda B16B). Lower ratios (under 1.5) create more torque but increase piston side wear (like the EJ257).</p>
+            <p><strong>Static Compression:</strong> The ratio of maximum to minimum volume in the cylinder. Higher compression yields more power but requires higher octane fuel to prevent knock.</p>
+        </div>
+    </div>
+
+    <div id="tab-airfuel" class="tab-content">
+        <div class="calc-grid">
+            
+            <div class="card" style="grid-row: span 2;">
+                <h3>Intake Runner Resonance</h3>
+                <div class="input-group">
+                    <label style="margin-top:0;">
+                        <input type="radio" name="runner_unit" value="in" checked onchange="toggleUnit()"> Inches
+                    </label>
+                    <label style="margin-top:0;">
+                        <input type="radio" name="runner_unit" value="mm" onchange="toggleUnit()"> MM
+                    </label>
+                </div>
+                <label>Runner Length (Valves to Plenum)</label>
+                <input type="number" id="run_len" placeholder="e.g. 12">
+                
+                <button class="calc-btn" onclick="calcRunner()">Calculate Peaks</button>
+                
+                <ul class="result-list" id="res_runner">
+                    <li>2nd Harmonic (Race) <span>---</span></li>
+                    <li>3rd Harmonic (Street) <span>---</span></li>
+                    <li>4th Harmonic (Mid) <span>---</span></li>
+                    <li>5th Harmonic (Low) <span>---</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Fuel Injector Sizing</h3>
+                <label>Target Horsepower (BHP)</label><input type="number" id="inj_hp" placeholder="300">
+                <label>Number of Injectors</label><input type="number" id="inj_num" placeholder="4">
+                
+                <label>Fuel Type</label>
+                <select id="inj_fuel" onchange="calcInjectors()">
+                    <option value="1.0">Gasoline (Pump)</option>
+                    <option value="1.07">E20 Mix</option>
+                    <option value="1.35">E85 (Flex Fuel)</option>
+                    <option value="1.5">E100 (Ethanol)</option>
+                    <option value="2.1">Methanol (M1)</option>
+                </select>
+
+                <label>BSFC <small>(0.5 NA / 0.65 Turbo)</small></label><input type="number" id="inj_bsfc" value="0.5">
+                <label>Max Duty Cycle (%)</label><input type="number" id="inj_duty" value="80">
+                <button class="calc-btn" onclick="calcInjectors()">Calculate</button>
+                <div class="result-box" id="res_inj">--- cc/min</div>
+            </div>
+
+            <div class="card">
+                <h3>Airflow (CFM)</h3>
+                <label>Engine Size (Liters)</label><input type="number" id="cfm_liters">
+                <label>Max RPM</label><input type="number" id="cfm_rpm" placeholder="7000">
+                <label>Volumetric Eff. (%)</label><input type="number" id="cfm_ve" value="90" placeholder="90">
+                <button class="calc-btn" onclick="calcCFM()">Calculate CFM</button>
+                <div class="result-box" id="res_cfm">--- CFM</div>
+            </div>
+        </div>
+
+        <div class="explainer">
+            <h4>Understanding Induction Tuning</h4>
+            <p><strong>Fuel Type:</strong> Different fuels have different energy densities. E85 requires ~35% more fuel volume than gasoline to make the same power. Methanol requires more than double the volume.</p>
+            <p><strong>Intake Harmonics:</strong> 
+                <br>• <strong>2nd Harmonic:</strong> Strongest pulse, used for high RPM race engines (Requires short runners).
+                <br>• <strong>3rd Harmonic:</strong> Good balance for street/strip engines.
+                <br>• <strong>4th Harmonic:</strong> Best for torque and mid-range (Long runners like TPI/truck intakes).
+            </p>
+        </div>
+    </div>
+
+    <div id="tab-reliability" class="tab-content">
+        <div class="calc-grid">
+            <div class="card">
+                <h3>Mean Piston Speed</h3>
+                <label>Stroke (mm)</label><input type="number" id="mps_stroke">
+                <label>Max RPM</label><input type="number" id="mps_rpm" placeholder="8000">
+                <button class="calc-btn" onclick="calcPistonSpeed()">Calculate</button>
+                <div class="result-box" id="res_mps">--- ft/min</div>
+                <small style="display:block; text-align:center; margin-top:5px;">Safe Limits: Cast ~3500 | Forged ~5000</small>
+            </div>
+
+            <div class="card">
+                <h3>Dynamic Compression (DCR)</h3>
+                <label>Static CR</label><input type="number" id="dcr_static" placeholder="11.0">
+                <label>Rod Length (mm)</label><input type="number" id="dcr_rod">
+                <label>Stroke (mm)</label><input type="number" id="dcr_stroke">
+                <label>Intake Closing (ABDC)</label><input type="number" id="dcr_ivc" placeholder="45">
+                <button class="calc-btn" onclick="calcDCR()">Calculate DCR</button>
+                <div class="result-box" id="res_dcr">--- : 1</div>
+            </div>
+        </div>
+
+        <div class="explainer">
+            <h4>Engine Reliability Explained</h4>
+            <p><strong>Mean Piston Speed:</strong> This is the average speed of the piston moving up and down. It is the primary limiting factor for engine redline. Stock cast pistons usually fail above 3,500-4,000 ft/min. High-end forged internals can handle 5,000+ ft/min.</p>
+            <p><strong>Dynamic Compression (DCR):</strong> While Static CR is a geometric ratio, Dynamic CR accounts for when the intake valve actually closes (trapping the air). Big camshafts close the valve later, lowering your DCR. This is why a cammed engine can run high static compression on pump gas.</p>
+        </div>
+    </div>
+
+    <div id="tab-drivetrain" class="tab-content">
+        <div class="calc-grid">
+            <div class="card">
+                <h3>Gear Ratio & Top Speed</h3>
+                <label>Tire Diameter (inches)</label><input type="number" id="gear_tire" placeholder="24.5">
+                <label>Final Drive Ratio</label><input type="number" id="gear_final" placeholder="4.10">
+                <label>Gear Ratio</label><input type="number" id="gear_ratio" placeholder="0.85">
+                <label>RPM</label><input type="number" id="gear_rpm" placeholder="7000">
+                <button class="calc-btn" onclick="calcSpeed()">Calculate Speed</button>
+                <div class="result-box" id="res_speed">--- mph</div>
+            </div>
+
+            <div class="card">
+                <h3>Tire Size Compare</h3>
+                <div class="input-group">
+                    <input type="text" id="tire1" placeholder="205/55R16">
+                    <input type="text" id="tire2" placeholder="225/45R17">
+                </div>
+                <button class="calc-btn" onclick="calcTireDiff()">Compare</button>
+                <div class="result-box" id="res_tire">Diff: ---%</div>
+            </div>
+        </div>
+
+        <div class="explainer">
+            <h4>Drivetrain Math</h4>
+            <p><strong>Gear Ratio Speed:</strong> Helps you determine what RPM you will be cruising at on the highway, or what your theoretical top speed is in top gear.</p>
+            <p><strong>Tire Comparison:</strong> Changing wheel size? Use this to ensure your new tires have the same outer diameter as your stock ones. A difference of >3% can affect your speedometer accuracy and ABS systems.</p>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h3>Why this site exists</h3>
+        <p>I'm just a car enthusiast who spends way too much time thinking about imaginary engine builds. I got tired of having 10 different tabs open—one for a compression calculator, one for rod ratios, another for gearing—so I decided to build a single place where I could do it all. I hope this helps you plan your next project, whether it's a real build or just a daydream.</p>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="#" onclick="openModal('privacyModal'); return false;">Privacy Policy</a> | 
+            <a href="#" onclick="openModal('termsModal'); return false;">Terms of Use</a>
+        </div>
+        <p>&copy; 2026 Engine Calculator Suite. All rights reserved.</p>
+    </footer>
+
+    <div id="cookie-banner">
+        <span>We use local storage to save your preferences. No personal data is sent to servers.</span>
+        <button onclick="acceptCookies()">Got it</button>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p><strong>Last Updated: January 2026</strong></p>
+            <p>This website is a static tool provided for educational and entertainment purposes.</p>
+            <h3>1. Data Collection</h3>
+            <p>We do not collect personal data (names, emails, addresses). All calculations happen directly in your browser using JavaScript. The data you enter into the calculators is not sent to any server.</p>
+            <h3>2. Cookies & Local Storage</h3>
+            <p>We use local storage simply to remember if you have dismissed the cookie banner. We may use third-party services (like Google Analytics or AdSense) which use cookies to serve relevant ads or analyze traffic.</p>
+            <h3>3. Disclaimer</h3>
+            <p>These calculators are for estimation only. Always verify measurements with a professional machine shop before purchasing parts or machining engine blocks.</p>
+        </div>
+    </div>
+
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
+            <h2>Terms of Use</h2>
+            <p>By using this website, you agree that the results provided are estimates. The creator of this site is not responsible for any engine damage, financial loss, or mechanical failures resulting from the use of this data. Always measure twice, cut once.</p>
+        </div>
+    </div>
+
+<script>
+    // --- 1. ENGINE DATABASE ---
+    const engineDatabase = {
+        "Honda B16A": { bore: 81.0, stroke: 77.4, rod: 134.0, cyl: 4, cr: 10.2 },
+        "Honda B18C5": { bore: 81.0, stroke: 87.2, rod: 137.9, cyl: 4, cr: 11.1 },
+        "Honda K20A2": { bore: 86.0, stroke: 86.0, rod: 139.0, cyl: 4, cr: 11.0 },
+        "Honda K24A2": { bore: 87.0, stroke: 99.0, rod: 152.0, cyl: 4, cr: 10.5 },
+        "Honda F20C": { bore: 87.0, stroke: 84.0, rod: 153.0, cyl: 4, cr: 11.7 },
+        "Toyota 2JZ-GTE": { bore: 86.0, stroke: 86.0, rod: 142.0, cyl: 6, cr: 8.5 },
+        "Nissan RB26DETT": { bore: 86.0, stroke: 73.7, rod: 121.5, cyl: 6, cr: 8.5 },
+        "Nissan SR20DET": { bore: 86.0, stroke: 86.0, rod: 136.3, cyl: 4, cr: 8.5 },
+        "Mitsubishi 4G63": { bore: 85.0, stroke: 88.0, rod: 150.0, cyl: 4, cr: 8.8 },
+        "Subaru EJ257": { bore: 99.5, stroke: 79.0, rod: 130.5, cyl: 4, cr: 8.2 },
+        "Ford 5.0L Coyote": { bore: 92.2, stroke: 92.7, rod: 150.7, cyl: 8, cr: 11.0 },
+        "Chevy LS3": { bore: 103.25, stroke: 92.0, rod: 154.9, cyl: 8, cr: 10.7 },
+        "Chevy LS7": { bore: 104.8, stroke: 101.6, rod: 154.0, cyl: 8, cr: 11.0 },
+        "Dodge Hellcat 6.2": { bore: 103.9, stroke: 90.9, rod: 158.5, cyl: 8, cr: 9.5 },
+        "BMW S54": { bore: 87.0, stroke: 91.0, rod: 139.0, cyl: 6, cr: 11.5 },
+        "VW/Audi 2.0T TSI": { bore: 82.5, stroke: 92.8, rod: 144.0, cyl: 4, cr: 9.6 },
+        "Porsche 4.0L GT3": { bore: 102.0, stroke: 81.5, rod: 130.0, cyl: 6, cr: 13.3 }
+    };
+
+    // Initialize Dropdown
+    const select = document.getElementById("globalEngine");
+    for (const [key, val] of Object.entries(engineDatabase)) {
+        let option = document.createElement("option");
+        option.value = key;
+        option.text = key;
+        select.appendChild(option);
+    }
+
+    // --- 2. LOGIC FUNCTIONS ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function autoFillAll() {
+        const engine = engineDatabase[document.getElementById("globalEngine").value];
+        if (!engine) return;
+        setVal("disp_bore", engine.bore);
+        setVal("disp_stroke", engine.stroke);
+        setVal("disp_cyl", engine.cyl);
+        setVal("bs_bore", engine.bore);
+        setVal("bs_stroke", engine.stroke);
+        setVal("rs_rod", engine.rod);
+        setVal("rs_stroke", engine.stroke);
+        setVal("mps_stroke", engine.stroke);
+        setVal("dcr_rod", engine.rod);
+        setVal("dcr_stroke", engine.stroke);
+        setVal("dcr_static", engine.cr);
+        calcDisplacement(); 
+    }
+
+    // --- CALCULATORS ---
+
+    function toggleUnit() {
+        const unit = document.querySelector('input[name="runner_unit"]:checked').value;
+        const input = document.getElementById("run_len");
+        if(input.value) {
+            if(unit === 'mm') input.value = (parseFloat(input.value) * 25.4).toFixed(1);
+            else input.value = (parseFloat(input.value) / 25.4).toFixed(1);
+        }
+        calcRunner();
+    }
+
+    function calcRunner() {
+        let len = getVal("run_len");
+        const unit = document.querySelector('input[name="runner_unit"]:checked').value;
+        const list = document.getElementById("res_runner");
+        
+        if (!len) {
+            list.innerHTML = `<li>Enter length to see RPMs</li>`;
+            return;
+        }
+        if (unit === 'mm') len = len / 25.4;
+
+        // Constants for Harmonics
+        const h2 = 132000 / len;
+        const h3 = 97000 / len;
+        const h4 = 74000 / len;
+        const h5 = 54000 / len;
+
+        list.innerHTML = `
+            <li>2nd Harmonic <span>${h2.toFixed(0)} RPM</span></li>
+            <li>3rd Harmonic <span>${h3.toFixed(0)} RPM</span></li>
+            <li>4th Harmonic <span>${h4.toFixed(0)} RPM</span></li>
+            <li>5th Harmonic <span>${h5.toFixed(0)} RPM</span></li>
+        `;
+    }
+
+    function calcDisplacement() {
+        const b = getVal("disp_bore"), s = getVal("disp_stroke"), c = getVal("disp_cyl");
+        if(b && s && c) {
+            const cc = (Math.PI * Math.pow(b/2, 2) * s * c) / 1000;
+            const singleCyl = (Math.PI * Math.pow(b/2, 2) * s) / 1000;
+            document.getElementById("res_disp").innerText = `${cc.toFixed(0)} cc / ${(cc/1000).toFixed(1)} L`;
+            document.getElementById("cr_cylvol").value = singleCyl.toFixed(2);
+            document.getElementById("cfm_liters").value = (cc/1000).toFixed(1);
+        }
+    }
+
+    function calcCR() {
+        const cyl = getVal("cr_cylvol"), chamber = getVal("cr_chamber"), dome = getVal("cr_dome") || 0;
+        if (cyl && chamber) {
+            const cr = (cyl + chamber + dome) / (chamber + dome); 
+            document.getElementById("res_cr").innerText = `${cr.toFixed(1)} : 1`;
+        }
+    }
+
+    function calcRSRatio() {
+        const r = getVal("rs_rod"), s = getVal("rs_stroke");
+        if(r && s) document.getElementById("res_rs").innerText = `Ratio: ${(r/s).toFixed(2)}`;
+    }
+
+    function calcBSRatio() {
+        const b = getVal("bs_bore"), s = getVal("bs_stroke");
+        if(b && s) {
+            const ratio = b/s;
+            let type = ratio > 1 ? "Over-Square" : (ratio < 1 ? "Under-Square" : "Square");
+            document.getElementById("res_bs").innerText = `${ratio.toFixed(2)} (${type})`;
+        }
+    }
+
+    function calcCFM() {
+        const l = getVal("cfm_liters"), rpm = getVal("cfm_rpm"), ve = getVal("cfm_ve");
+        if(l && rpm && ve) {
+            const cid = l * 61.0237;
+            const cfm = (cid * rpm * (ve/100)) / 3456;
+            document.getElementById("res_cfm").innerText = `${cfm.toFixed(0)} CFM`;
+        }
+    }
+
+    function calcInjectors() {
+        const hp = getVal("inj_hp"), num = getVal("inj_num"), bsfc = getVal("inj_bsfc"), duty = getVal("inj_duty");
+        const fuelMult = parseFloat(document.getElementById("inj_fuel").value); // Fuel Multiplier
+        
+        if(hp && num) {
+            let lbsHr = (hp * bsfc) / (num * (duty/100));
+            lbsHr = lbsHr * fuelMult; // Apply fuel type scaling
+            document.getElementById("res_inj").innerText = `${(lbsHr * 10.5).toFixed(0)} cc/min`;
+        }
+    }
+
+    function calcPistonSpeed() {
+        const s = getVal("mps_stroke"), rpm = getVal("mps_rpm");
+        if(s && rpm) document.getElementById("res_mps").innerText = `${((s/25.4 * rpm)/6).toFixed(0)} ft/min`;
+    }
+
+    function calcDCR() {
+        const staticCR = getVal("dcr_static"), ivc = getVal("dcr_ivc");
+        if(staticCR && ivc) {
+            const mockEffect = 1 - (ivc/180)*0.5;
+            document.getElementById("res_dcr").innerText = `~${(staticCR * mockEffect).toFixed(1)} : 1`; 
+        }
+    }
+
+    function calcSpeed() {
+        const tire = getVal("gear_tire"), final = getVal("gear_final"), ratio = getVal("gear_ratio"), rpm = getVal("gear_rpm");
+        if(tire && final && ratio && rpm) document.getElementById("res_speed").innerText = `${((rpm * tire) / (final * ratio * 336)).toFixed(1)} mph`;
+    }
+
+    function calcTireDiff() {
+        const p1 = parseTire(document.getElementById("tire1").value);
+        const p2 = parseTire(document.getElementById("tire2").value);
+        if(p1 && p2) {
+            const diff = ((p2 - p1) / p1) * 100;
+            document.getElementById("res_tire").innerText = `Diff: ${diff > 0 ? '+' : ''}${diff.toFixed(2)}%`;
+        } else {
+            document.getElementById("res_tire").innerText = "Invalid Format";
+        }
+    }
+
+    // Helpers
+    function getVal(id) { return parseFloat(document.getElementById(id).value); }
+    function setVal(id, val) { document.getElementById(id).value = val; }
+    function parseTire(str) {
+        const parts = str.match(/(\d{3})[\/](\d{2})[R\/z]?(\d{2})/i);
+        if(parts) return (parseFloat(parts[1]) * (parseFloat(parts[2])/100) * 2 / 25.4) + parseFloat(parts[3]);
+        return null;
+    }
+
+    // --- 3. COOKIES & MODALS ---
+    if (!localStorage.getItem('cookiesAccepted')) {
+        document.getElementById('cookie-banner').style.display = 'flex';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookiesAccepted', 'true');
+        document.getElementById('cookie-banner').style.display = 'none';
+    }
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) event.target.style.display = "none";
+    }
+</script>
+</body>
+</html>
